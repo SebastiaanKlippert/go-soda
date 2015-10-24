@@ -154,13 +154,13 @@ type SoSQL struct {
 	Select []string //The set of columns to be returned. Default: All columns, equivalent to $select=*
 	Where  string   //Filters the rows to be returned. Default: No filter, and returning a max of $limit values
 	Order  []struct {
-		Column string
-		Desc   bool
+		Column string //Column name
+		Desc   bool   //Descending. Default: false = Ascending
 	} //Specifies the order of results. Default: Unspecified order, but it will be consistent across paging
-	Group  string //Column to group results on, similar to SQL Grouping. Default: 	No grouping
+	Group  string //Column to group results on, similar to SQL Grouping. Default: No grouping
 	Limit  uint   //Maximum number of results to return. Default: 1000 (with a maximum of 50,000)
-	Offset uint   //Offset count into the results to start at, used for paging. Default: 	0
-	Q      string //Performs a full text search for a value. Default: 	No search
+	Offset uint   //Offset count into the results to start at, used for paging. Default: 0
+	Q      string //Performs a full text search for a value. Default: No search
 
 }
 
