@@ -8,22 +8,22 @@ Socrata Open Data API (SODA) GET client for Golang
 
 ![SODA Logo](http://1j3rac4ejwve1p3y0x1gprgk.wpengine.netdna-cdn.com/wp-content/uploads/2010/11/soda1.png)
 
-# Features
+## Features
 
 This is a simple client for get requests only.
 The client provides basic structs for querying and filtering the database.
 Although all operations are supported most are just provided as a string to allow for all kind of complex queries.
 
-# GetRequest
+## GetRequest
 
 The default GetRequest struct is not safe for use in multiple goroutines, create one for each goroutine or use the OffsetGetRequest.
 
-# OffsetGetRequest
+## OffsetGetRequest
 
 The OffsetGetRequest is a wrapper around the GetRequest and provides an easy offset counter to get loads of data. 
 It can be shared by multiple goroutines to get your data a lot faster.
 
-# GetRequest sample
+## GetRequest sample
 
 See the test file for more examples.
 
@@ -87,7 +87,7 @@ func CSVSample() {
 }
 ```
 
-# OffsetGetRequest sample
+## OffsetGetRequest sample
 
 Get all data in batches of 2000 rows using 4 goroutines
 
