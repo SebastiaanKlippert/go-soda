@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"sync"
 	"testing"
 	"time"
 )
@@ -181,12 +180,11 @@ func TestOffsetGetRequest(t *testing.T) {
 	num_goroutines := 4
 	batch_size := uint(2000)
 
-	wg := new(sync.WaitGroup)
 	for i := 0; i < num_goroutines; i++ {
 
-		wg.Add(1)
+		ogr.Add(1)
 		go func() {
-			defer wg.Done()
+			defer ogr.Done()
 
 			for {
 				resp, err := ogr.Next(batch_size)
@@ -208,7 +206,7 @@ func TestOffsetGetRequest(t *testing.T) {
 		}()
 
 	}
-	wg.Wait()
+	ogr.Wait()
 
 	if uint(records) != ogr.Count() {
 		t.Errorf("Wanted %d records, have %d", ogr.Count(), records)

@@ -96,7 +96,6 @@ Get all data in batches of 2000 rows using 4 goroutines
 ```go
 
 func GetAllData() error {
-
 	gr := soda.NewGetRequest("https://data.ct.gov/resource/hma6-9xbg", "")
 	gr.Format = "json"
 	gr.Query.AddOrder("zipcode", false)
@@ -106,12 +105,11 @@ func GetAllData() error {
 		return err
 	}
 
-	wg := new(sync.WaitGroup)
 	for i := 0; i < 4; i++ {
 
-		wg.Add(1)
+		ogr.Add(1)
 		go func() {
-			defer wg.Done()
+			defer ogr.Done()
 
 			for {
 				resp, err := ogr.Next(2000)
@@ -128,12 +126,13 @@ func GetAllData() error {
 				if err != nil {
 					log.Fatal(err)
 				}
-				//Process your data
+				//Process you data
 			}
 		}()
 
 	}
-	wg.Wait()
+	ogr.Wait()
+	
 	return nil
 }
 ```
