@@ -171,7 +171,7 @@ func TestOffsetGetRequest(t *testing.T) {
 	records := 0
 	start := time.Now()
 	num_goroutines := 4
-	batch_size := 2000
+	batch_size := uint(2000)
 
 	wg := new(sync.WaitGroup)
 	for i := 0; i < num_goroutines; i++ {
