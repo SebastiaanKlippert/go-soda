@@ -214,7 +214,7 @@ func (sq *SoSQL) URLValues() url.Values {
 
 //An OffsetGetRequest is a request getter that gets all the records using the filters and limits from gr and
 //is safe to use by multiple goroutines, use Next(number) to get the next number of records.
-//A sync.WaitGroup is embedded for easy parallelism.
+//A sync.WaitGroup is embedded for easy concurrency.
 type OffsetGetRequest struct {
 	gr     *GetRequest
 	m      sync.Mutex
@@ -225,7 +225,7 @@ type OffsetGetRequest struct {
 
 //Gets the next number of records
 func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
-	if o.offset >= o.count {
+	if o.IsDone() {
 		return nil, ErrDone
 	}
 	o.m.Lock() //lock to protect offset
@@ -237,12 +237,13 @@ func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 	return get(o.gr, rawquery)
 }
 
+//Returns the number of records
 func (o *OffsetGetRequest) Count() uint {
 	return o.count
 }
 
 //returns if we have gotten all records
-func (o *OffsetGetRequest) Done() bool {
+func (o *OffsetGetRequest) IsDone() bool {
 	return o.offset >= o.count
 }
 
