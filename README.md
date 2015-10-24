@@ -6,6 +6,8 @@
 
 Socrata Open Data API (SODA) GET client for Golang
 
+![SODA Logo](http://1j3rac4ejwve1p3y0x1gprgk.wpengine.netdna-cdn.com/wp-content/uploads/2010/11/soda1.png)
+
 # Features
 
 This is a simple client for get requests only.
@@ -82,7 +84,6 @@ func CSVSample() {
 	csvreader := csv.NewReader(resp.Body)
 
 	//Process data here
-
 }
 ```
 
@@ -125,7 +126,7 @@ func GetAllData() error {
 				if err != nil {
 					log.Fatal(err)
 				}
-				//Process you data
+				//Process your data
 			}
 		}()
 
@@ -134,5 +135,3 @@ func GetAllData() error {
 	return nil
 }
 ```
-
-![SODA Logo](http://1j3rac4ejwve1p3y0x1gprgk.wpengine.netdna-cdn.com/wp-content/uploads/2010/11/soda1.png)
