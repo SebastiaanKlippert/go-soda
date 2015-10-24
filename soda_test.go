@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -156,6 +157,13 @@ func TestGetCSV(t *testing.T) {
 }
 
 func TestOffsetGetRequest(t *testing.T) {
+
+	//only run using Travis Go Tip version or when not in Travis
+	travis_go := os.Getenv("TRAVIS_GO_VERSION")
+	if travis_go != "" && travis_go != "tip" {
+		t.Logf("Skipping on go version %s", travis_go)
+		return
+	}
 
 	gr := NewGetRequest(endpoint, apptoken)
 	gr.Format = "json"

@@ -16,8 +16,8 @@ import (
 
 var ErrDone = fmt.Errorf("Done")
 
-//A wrapper/container for SODA requests
-//This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten
+//A wrapper/container for SODA requests.
+//This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
 //Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
 type GetRequest struct {
 	apptoken string
@@ -27,7 +27,7 @@ type GetRequest struct {
 	Query    SoSQL
 }
 
-//Create a new GET request, the endpoint must be specified without the format
+//Create a new GET request, the endpoint must be specified without the format.
 //For example https://data.ct.gov/resource/hma6-9xbg
 func NewGetRequest(endpoint, apptoken string) *GetRequest {
 	return &GetRequest{
@@ -96,10 +96,11 @@ func (r *GetRequest) Count() (uint, error) {
 	if err != nil {
 		return 0, err
 	}
-	return uint(icount), err
+	return uint(icount), nil
 }
 
-//Gets all the fields present in the dataset, ignores
+//Gets all the fields present in the dataset (ignores select fields).
+//Spaces in fieldnames are replaced by underscores.
 func (r *GetRequest) Fields() ([]string, error) {
 
 	oldformat := r.Format
@@ -127,16 +128,12 @@ func (r *GetRequest) Fields() ([]string, error) {
 	defer resp.Body.Close()
 
 	csvreader := csv.NewReader(resp.Body)
-	for {
-		record, err := csvreader.Read()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return fields, err
-		}
-		fields = record
-		break
+	record, err := csvreader.Read()
+	if err != nil && err != io.EOF {
+		return fields, err
+	}
+	for _, field := range record {
+		fields = append(fields, strings.Replace(field, " ", "_", -1))
 	}
 	return fields, nil
 }
@@ -281,7 +278,7 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("SODA error %d:\n:%s", resp.StatusCode, errormessage)
+		return nil, fmt.Errorf("SODA error %d:\nURL: GET %s\nResponse: %s", resp.StatusCode, req.URL.String(), errormessage)
 	}
 
 	return resp, nil
