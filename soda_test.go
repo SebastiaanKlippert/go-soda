@@ -120,7 +120,7 @@ func TestGetCSV(t *testing.T) {
 
 	gr := NewGetRequest(endpoint, apptoken)
 	gr.Format = "csv"
-	gr.Query.Select = []string{"farm_name", "category", "item"}
+	gr.Query.Select = []string{"category", "farm_name", "item"}
 	gr.Filters["farm_name"] = "Beaver Brook Farm"
 	gr.Filters["item"] = "Pumpkins"
 
@@ -144,7 +144,7 @@ func TestGetCSV(t *testing.T) {
 			rows++
 			continue
 		}
-		want := []string{"Beaver Brook Farm", "Seasonal Items", "Pumpkins"}
+		want := []string{"Seasonal Items", "Beaver Brook Farm", "Pumpkins"}
 		for i, _ := range want {
 			if record[i] != want[i] {
 				t.Errorf("Want '%v', have '%v'", want[i], record[i])
@@ -166,7 +166,7 @@ func TestOffsetGetRequest(t *testing.T) {
 
 	gr := NewGetRequest(endpoint, apptoken)
 	gr.Format = "json"
-	gr.Query.AddOrder("zipcode", false)
+	gr.Query.AddOrder("farm_name", false)
 
 	ogr, err := NewOffsetGetRequest(gr)
 	if err != nil {
