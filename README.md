@@ -30,9 +30,10 @@ It can be shared by multiple goroutines to get your data a lot faster.
 See the test file for more examples.
 
 ```go
-func JSONSample() {
 
-	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/hma6-9xbg", "")
+func QuerySample() {
+
+	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
 
 	//count all records
 	count, err := sodareq.Count()
@@ -48,12 +49,40 @@ func JSONSample() {
 	}
 	fmt.Println(fields)
 
+	//get some JSON data using a complex query
+	sodareq.Format = "json"
+	sodareq.Query.Select = []string{"farm_name", "category", "item", "zipcode"}
+	sodareq.Query.Where = "lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 'Cucumbers') OR lower(item) like '%flower%')"
+	sodareq.Query.Limit = 1000
+	sodareq.Query.AddOrder("farm_name", false)
+	sodareq.Query.AddOrder("category", true)
+
+	//count this result first
+	querycount, err := sodareq.Count()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(querycount)
+
+	//get the results
+	resp, err := sodareq.Get()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	rawresp, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(rawresp))
+}
+
+func JSONSample() {
+
+	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
+
 	//get some JSON data
 	sodareq.Format = "json"
-	sodareq.Query.Where = "item = 'Radishes'"
-	sodareq.Query.Limit = 100
-	sodareq.Query.AddOrder("category", true)
-	sodareq.Query.AddOrder("farm_name", false)
+	sodareq.Filters["item"] = "Radishes"
+	sodareq.Query.Limit = 10
 
 	resp, err := sodareq.Get()
 	if err != nil {
@@ -61,21 +90,23 @@ func JSONSample() {
 	}
 	defer resp.Body.Close()
 
-	results := make(map[string]interface{})
+	results := make([]map[string]interface{}, 0)
 	err = json.NewDecoder(resp.Body).Decode(&results)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	//Process data here
+	for _, r := range results {
+		fmt.Println(r["farm_name"], r["item"])
+	}
 }
 
 func CSVSample() {
-
-	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/hma6-9xbg", "")
+	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
 	sodareq.Format = "csv"
 	sodareq.Filters["item"] = "Radishes"
-	sodareq.Query.Limit = 100
+	sodareq.Query.Limit = 10
 
 	resp, err := sodareq.Get()
 	if err != nil {
@@ -83,9 +114,18 @@ func CSVSample() {
 	}
 	defer resp.Body.Close()
 
-	csvreader := csv.NewReader(resp.Body)
-
 	//Process data here
+	csvreader := csv.NewReader(resp.Body)
+	for {
+		record, err := csvreader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(record)
+	}
 }
 ```
 
@@ -94,9 +134,9 @@ func CSVSample() {
 Get all data in batches of 2000 rows using 4 goroutines
 
 ```go
-
 func GetAllData() error {
-	gr := soda.NewGetRequest("https://data.ct.gov/resource/hma6-9xbg", "")
+
+	gr := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
 	gr.Format = "json"
 	gr.Query.AddOrder("zipcode", false)
 
@@ -121,18 +161,18 @@ func GetAllData() error {
 				}
 				defer resp.Body.Close()
 
-				results := make(map[string]interface{})
+				results := make([]map[string]interface{}, 0)
 				err = json.NewDecoder(resp.Body).Decode(&results)
 				if err != nil {
 					log.Fatal(err)
 				}
-				//Process you data
+				//Process your data
 			}
 		}()
 
 	}
 	ogr.Wait()
-	
+
 	return nil
 }
 ```

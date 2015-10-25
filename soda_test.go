@@ -11,7 +11,7 @@ import (
 
 const (
 	apptoken = ""
-	endpoint = "https://data.ct.gov/resource/hma6-9xbg"
+	endpoint = "https://data.ct.gov/resource/y6p2-px98"
 )
 
 func TestGetRequestSerialize(t *testing.T) {
