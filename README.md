@@ -30,7 +30,6 @@ It can be shared by multiple goroutines to get your data a lot faster.
 See the test file for more examples.
 
 ```go
-
 func QuerySample() {
 
 	sodareq := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
@@ -52,7 +51,8 @@ func QuerySample() {
 	//get some JSON data using a complex query
 	sodareq.Format = "json"
 	sodareq.Query.Select = []string{"farm_name", "category", "item", "zipcode"}
-	sodareq.Query.Where = "lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 'Cucumbers') OR lower(item) like '%flower%')"
+	sodareq.Query.Where = "lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 
+	  'Cucumbers') OR lower(item) like '%flower%')"
 	sodareq.Query.Limit = 1000
 	sodareq.Query.AddOrder("farm_name", false)
 	sodareq.Query.AddOrder("category", true)
