@@ -225,10 +225,14 @@ type OffsetGetRequest struct {
 
 //Gets the next number of records
 func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
+	o.m.Lock() //lock to protect offset
 	if o.IsDone() {
+		o.m.Unlock()
 		return nil, ErrDone
 	}
-	o.m.Lock() //lock to protect offset
+	if o.offset+number > o.count {
+		number = o.count - o.offset
+	}
 	o.gr.Query.Offset = o.offset
 	o.gr.Query.Limit = number
 	rawquery := o.gr.URLValues().Encode()

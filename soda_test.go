@@ -173,8 +173,6 @@ func TestOffsetGetRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf("Getting %d records", ogr.Count())
-
 	records := 0
 	start := time.Now()
 	num_goroutines := 4
