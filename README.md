@@ -1,5 +1,6 @@
 [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/SebastiaanKlippert/go-soda)
 [![Build Status](https://travis-ci.org/SebastiaanKlippert/go-soda.svg?branch=master)](https://travis-ci.org/SebastiaanKlippert/go-soda)
+[![Go Report Card](http://goreportcard.com/badge/SebastiaanKlippert/go-soda)](http:/goreportcard.com/report/SebastiaanKlippert/go-soda)
 
 
 # go-soda
@@ -15,6 +16,13 @@ For SODA docs see http://dev.socrata.com
 This is a simple client for get requests only.
 The client provides basic structs for querying and filtering the database.
 Although all operations are supported most are just provided as a string to allow for all kind of complex queries.
+
+## Install
+
+Just go get it
+```
+go get -u github.com/SebastiaanKlippert/go-soda
+```
 
 ## GetRequest
 

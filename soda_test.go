@@ -55,7 +55,7 @@ func TestCount(t *testing.T) {
 		t.Fatal(err)
 	}
 	if count < 22000 {
-		t.Fatal("Expected a count of atleast %d, have %d", 22000, count)
+		t.Fatalf("Expected a count of atleast %d, have %d", 22000, count)
 	}
 	t.Logf("Count all: %d\n", count)
 
@@ -67,7 +67,7 @@ func TestCount(t *testing.T) {
 		t.Fatal(err)
 	}
 	if count != 1 {
-		t.Fatal("Expected a count of %d, have %d", 1, count)
+		t.Fatalf("Expected a count of %d, have %d", 1, count)
 	}
 	t.Logf("Count filtered: %d\n", count)
 }
@@ -79,7 +79,7 @@ func TestFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(fields) < 2 {
-		t.Fatal("Expected atleast %d fields, have %d", 2, len(fields))
+		t.Fatalf("Expected atleast %d fields, have %d", 2, len(fields))
 	}
 	t.Logf("Fields: %v\n", fields)
 }
@@ -145,7 +145,7 @@ func TestGetCSV(t *testing.T) {
 			continue
 		}
 		want := []string{"Seasonal Items", "Beaver Brook Farm", "Pumpkins"}
-		for i, _ := range want {
+		for i := range want {
 			if record[i] != want[i] {
 				t.Errorf("Want '%v', have '%v'", want[i], record[i])
 			}
@@ -158,9 +158,9 @@ func TestGetCSV(t *testing.T) {
 func TestOffsetGetRequest(t *testing.T) {
 
 	//only run using Travis Go Tip version or when not in Travis
-	travis_go := os.Getenv("TRAVIS_GO_VERSION")
-	if travis_go != "" && travis_go != "tip" {
-		t.Logf("Skipping on go version %s", travis_go)
+	travisGo := os.Getenv("TRAVIS_GO_VERSION")
+	if travisGo != "" && travisGo != "tip" {
+		t.Logf("Skipping on go version %s", travisGo)
 		return
 	}
 
@@ -175,17 +175,17 @@ func TestOffsetGetRequest(t *testing.T) {
 
 	records := 0
 	start := time.Now()
-	num_goroutines := 4
-	batch_size := uint(2000)
+	numGoroutines := 4
+	batchSize := uint(2000)
 
-	for i := 0; i < num_goroutines; i++ {
+	for i := 0; i < numGoroutines; i++ {
 
 		ogr.Add(1)
 		go func() {
 			defer ogr.Done()
 
 			for {
-				resp, err := ogr.Next(batch_size)
+				resp, err := ogr.Next(batchSize)
 				if err == ErrDone {
 					break
 				}
@@ -209,7 +209,7 @@ func TestOffsetGetRequest(t *testing.T) {
 	if uint(records) != ogr.Count() {
 		t.Errorf("Wanted %d records, have %d", ogr.Count(), records)
 	}
-	t.Logf("Got %d records in %s using %d goroutines", records, time.Since(start), num_goroutines)
+	t.Logf("Got %d records in %s using %d goroutines", records, time.Since(start), numGoroutines)
 }
 
 type Business struct {
