@@ -192,10 +192,10 @@ func TestOffsetGetRequest(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				defer resp.Body.Close()
 
 				results := []Business{}
 				err = json.NewDecoder(resp.Body).Decode(&results)
+				resp.Body.Close()
 				if err != nil {
 					t.Fatal(err)
 				}

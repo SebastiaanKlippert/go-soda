@@ -167,10 +167,10 @@ func GetAllData() error {
 				if err != nil {
 					log.Fatal(err)
 				}
-				defer resp.Body.Close()
 
 				results := make([]map[string]interface{}, 0)
 				err = json.NewDecoder(resp.Body).Decode(&results)
+				resp.Body.Close()
 				if err != nil {
 					log.Fatal(err)
 				}
