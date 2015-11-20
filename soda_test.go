@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -173,7 +174,7 @@ func TestOffsetGetRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	records := 0
+	records := uint64(0)
 	start := time.Now()
 	numGoroutines := 4
 	batchSize := uint(2000)
@@ -199,7 +200,7 @@ func TestOffsetGetRequest(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				records += len(results)
+				atomic.AddUint64(&records, uint64(len(results)))
 			}
 		}()
 

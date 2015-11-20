@@ -37,6 +37,10 @@ func NewGetRequest(endpoint, apptoken string) *GetRequest {
 
 //Get executes the HTTP GET request
 func (r *GetRequest) Get() (*http.Response, error) {
+	//If offset is used we must specify an order
+	if r.Query.Offset > 0 && len(r.Query.Order) == 0 {
+		return nil, fmt.Errorf("Cannot use an offset without setting the order")
+	}
 	return get(r, r.URLValues().Encode())
 }
 
@@ -243,6 +247,9 @@ func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 		o.m.Unlock()
 		return nil, ErrDone
 	}
+	if len(o.gr.Query.Order) == 0 { //If offset is used we must specify an order
+		return nil, fmt.Errorf("Cannot use an offset without setting the order")
+	}
 	if o.offset+number > o.count {
 		number = o.count - o.offset
 	}
@@ -276,11 +283,6 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 
 //get is the function that executes the HTTP request
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
-
-	//If offset is used we must specify an order
-	if r.Query.Offset > 0 && len(r.Query.Order) == 0 {
-		return nil, fmt.Errorf("Cannot use an offset without setting the order")
-	}
 
 	req, err := http.NewRequest("GET", r.GetEndpoint(), nil)
 	if err != nil {
