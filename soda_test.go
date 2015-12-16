@@ -199,9 +199,9 @@ func TestGetMetadata(t *testing.T) {
 		t.Errorf("Want ID %s, have %s", m.identifier, md.ID)
 	}
 
-	w := "2015-01-23 22:01:23 +0100 CET"
-	if md.CreatedAt.Time().String() != w {
-		t.Errorf("Want CreatedAt %s, have %s", w, md.CreatedAt.Time().String())
+	w := "2015-01-23 21:01:23 +0000 UTC"
+	if md.CreatedAt.Time().UTC().String() != w {
+		t.Errorf("Want CreatedAt %s, have %s", w, md.CreatedAt.Time().UTC().String())
 	}
 
 }
