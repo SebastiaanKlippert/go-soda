@@ -169,11 +169,15 @@ func (r *GetRequest) Modified() (time.Time, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.Header.Get("X-Soda2-Truth-Last-Modified") == "" {
+	lms := resp.Header.Get("X-Soda2-Truth-Last-Modified")
+	if lms == "" {
+		lms = resp.Header.Get("Last-Modified")
+	}
+	if lms == "" {
 		return time.Time{}, fmt.Errorf("Cannot get last modified date, field not present in HTTP header")
 	}
 
-	return time.Parse(time.RFC1123, resp.Header.Get("X-Soda2-Truth-Last-Modified"))
+	return time.Parse(time.RFC1123, lms)
 }
 
 //SimpleFilters is the easiest way to filter columns for equality.
