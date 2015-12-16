@@ -3,6 +3,7 @@ package soda
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -31,6 +32,11 @@ func (m metadata) do() (*Metadata, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	
+	if resp.StatusCode >= 400 {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("Received statuscode %d\nBody: %s", resp.StatusCode, b)
+	}
 
 	md := new(Metadata)
 	err = json.NewDecoder(resp.Body).Decode(md)
