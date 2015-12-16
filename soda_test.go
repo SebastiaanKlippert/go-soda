@@ -165,6 +165,84 @@ func TestGetCSV(t *testing.T) {
 	t.Logf("%d CSV rows\n", rows)
 }
 
+func TestMetadataConstructor(t *testing.T) {
+
+	ms := []metadata{
+		newMetadata("https://data.ct.gov/resource/y6p2-px98"),
+		newMetadata("https://data.ct.gov/resource/y6p2-px98/"),
+	}
+
+	for _, m := range ms {
+		wb := "https://data.ct.gov"
+		wi := "y6p2-px98"
+		if m.baseurl != wb {
+			t.Errorf("Want baseurl %s, have %s", wb, m.baseurl)
+		}
+		if m.identifier != wi {
+			t.Errorf("Want identifier %s, have %s", wi, m.identifier)
+		}
+	}
+
+}
+
+func TestGetMetadata(t *testing.T) {
+
+	m := newMetadata(endpoint)
+
+	gr := NewGetRequest(endpoint, apptoken)
+	md, err := gr.Metadata.Get()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if md.ID != m.identifier {
+		t.Errorf("Want ID %s, have %s", m.identifier, md.ID)
+	}
+
+	w := "2015-01-23 22:01:23 +0100 CET"
+	if md.CreatedAt.Time().String() != w {
+		t.Errorf("Want CreatedAt %s, have %s", w, md.CreatedAt.Time().String())
+	}
+
+}
+
+func TestGetMetadataError(t *testing.T) {
+
+	gr := NewGetRequest(endpoint[:len(endpoint)-2], apptoken)
+	md, err := gr.Metadata.Get()
+	if err == nil || md != nil {
+		t.Fatal("Wanted error")
+	}
+
+}
+
+func TestGetMetadataColumns(t *testing.T) {
+
+	gr := NewGetRequest(endpoint, apptoken)
+	cols, err := gr.Metadata.GetColumns()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(cols) != 16 {
+		t.Errorf("Want %d columns, have %d", 16, len(cols))
+	}
+
+	want := []string{"Farm Name", "Category", "Item", "Farmer ID", "Location 1 (state)"} //not complete, but good enough
+	for _, w := range want {
+		found := false
+		for _, col := range cols {
+			if col.Name == w {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Did not find column %s", w)
+		}
+	}
+}
+
 func TestOffsetGetRequest(t *testing.T) {
 
 	//only run using Travis Go Tip version or when not in Travis

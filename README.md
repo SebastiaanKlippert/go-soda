@@ -33,6 +33,16 @@ The default GetRequest struct is not safe for use in multiple goroutines, create
 The OffsetGetRequest is a wrapper around the GetRequest and provides an easy offset counter to get loads of data. 
 It can be shared by multiple goroutines to get your data a lot faster.
 
+## Metadata
+
+For each GetRequest you can request metadata (using a seperate API call). The metadata contains info about 
+the dataset like creation and update times, licensing info and advanced column info.
+
+```go
+sodareq := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
+metadata, err := sodareq.Metadata.Get()
+```
+
 ## GetRequest sample
 
 See the test file for more examples.

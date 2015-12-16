@@ -24,6 +24,7 @@ type GetRequest struct {
 	Format   string //json, csv etc
 	Filters  SimpleFilters
 	Query    SoSQL
+	Metadata metadata
 }
 
 //NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -33,6 +34,7 @@ func NewGetRequest(endpoint, apptoken string) *GetRequest {
 		apptoken: apptoken,
 		endpoint: endpoint,
 		Filters:  make(SimpleFilters),
+		Metadata: newMetadata(endpoint),
 	}
 }
 
