@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 //GetRequest is a wrapper/container for SODA requests.
@@ -141,6 +142,38 @@ func (r *GetRequest) Fields() ([]string, error) {
 		fields = append(fields, strings.Replace(field, " ", "_", -1))
 	}
 	return fields, nil
+}
+
+//Modified returns when the dataset was last updated
+func (r *GetRequest) Modified() (time.Time, error) {
+
+	oldformat := r.Format
+	oldorder := r.Query.Order
+	oldlimit := r.Query.Limit
+	oldselect := r.Query.Select
+	defer func() {
+		r.Format = oldformat
+		r.Query.Select = oldselect
+		r.Query.Order = oldorder
+		r.Query.Limit = oldlimit
+	}()
+
+	r.Format = "json"
+	r.Query.Select = []string{}
+	r.Query.Limit = 0
+	r.Query.ClearOrder()
+
+	resp, err := r.Get()
+	if err != nil {
+		return time.Time{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.Header.Get("X-Soda2-Truth-Last-Modified") == "" {
+		return time.Time{}, fmt.Errorf("Cannot get last modified date, field not present in HTTP header")
+	}
+
+	return time.Parse(time.RFC1123, resp.Header.Get("X-Soda2-Truth-Last-Modified"))
 }
 
 //SimpleFilters is the easiest way to filter columns for equality.

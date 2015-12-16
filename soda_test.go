@@ -85,6 +85,15 @@ func TestFields(t *testing.T) {
 	t.Logf("Fields: %v\n", fields)
 }
 
+func TestModified(t *testing.T) {
+	gr := NewGetRequest(endpoint, apptoken)
+	modified, err := gr.Modified()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(modified)
+}
+
 func TestGetJSON(t *testing.T) {
 
 	gr := NewGetRequest(endpoint, apptoken)

@@ -48,6 +48,13 @@ func QuerySample() {
 		log.Fatal(err)
 	}
 	fmt.Println(count)
+	
+	//get dataset last updated time
+	modified, err := sodareq.Modified()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(modified)	
 
 	//list all fields/columns
 	fields, err := sodareq.Fields()
