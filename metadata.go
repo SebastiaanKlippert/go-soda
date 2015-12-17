@@ -32,7 +32,7 @@ func (m metadata) do() (*Metadata, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode >= 400 {
 		b, _ := ioutil.ReadAll(resp.Body)
 		return nil, fmt.Errorf("Received statuscode %d\nBody: %s", resp.StatusCode, b)
