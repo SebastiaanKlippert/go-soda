@@ -19,12 +19,13 @@ import (
 //This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
 //Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
 type GetRequest struct {
-	apptoken string
-	endpoint string //endpoint without format (not .json etc at the end)
-	Format   string //json, csv etc
-	Filters  SimpleFilters
-	Query    SoSQL
-	Metadata metadata
+	apptoken   string
+	endpoint   string //endpoint without format (not .json etc at the end)
+	Format     string //json, csv etc
+	Filters    SimpleFilters
+	Query      SoSQL
+	Metadata   metadata
+	HttpClient *http.Client //For clients who need a custom HTTP client
 }
 
 //NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -323,6 +324,11 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 //get is the function that executes the HTTP request
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
 
+	client := http.DefaultClient
+	if r.HttpClient != nil {
+		client = r.HttpClient
+	}
+
 	req, err := http.NewRequest("GET", r.GetEndpoint(), nil)
 	if err != nil {
 		return nil, err
@@ -331,7 +337,7 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 	req.Header.Set("X-App-Token", r.apptoken)
 
 	//Execute
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
