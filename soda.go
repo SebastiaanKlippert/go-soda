@@ -25,7 +25,7 @@ type GetRequest struct {
 	Filters    SimpleFilters
 	Query      SoSQL
 	Metadata   metadata
-	HttpClient *http.Client //For clients who need a custom HTTP client
+	HTTPClient *http.Client //For clients who need a custom HTTP client
 }
 
 //NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -325,8 +325,8 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
 
 	client := http.DefaultClient
-	if r.HttpClient != nil {
-		client = r.HttpClient
+	if r.HTTPClient != nil {
+		client = r.HTTPClient
 	}
 
 	req, err := http.NewRequest("GET", r.GetEndpoint(), nil)
