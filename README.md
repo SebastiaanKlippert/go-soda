@@ -35,7 +35,7 @@ It can be shared by multiple goroutines to get your data a lot faster.
 
 ## Metadata
 
-For each GetRequest you can request metadata (using a seperate API call). The metadata contains info about 
+For each GetRequest you can request metadata (using a separate API call). The metadata contains info about 
 the dataset like creation and update times, licensing info and advanced column info.
 
 ```go
