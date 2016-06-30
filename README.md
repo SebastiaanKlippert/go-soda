@@ -1,6 +1,6 @@
 [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/SebastiaanKlippert/go-soda)
 [![Build Status](https://travis-ci.org/SebastiaanKlippert/go-soda.svg?branch=master)](https://travis-ci.org/SebastiaanKlippert/go-soda)
-[![Go Report Card](http://goreportcard.com/badge/SebastiaanKlippert/go-soda)](http:/goreportcard.com/report/SebastiaanKlippert/go-soda)
+[![Go Report Card](https://goreportcard.com/badge/SebastiaanKlippert/go-soda)](https:/goreportcard.com/report/SebastiaanKlippert/go-soda)
 
 
 # go-soda
