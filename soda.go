@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"errors"
 )
 
 //GetRequest is a wrapper/container for SODA requests.
@@ -43,7 +44,7 @@ func NewGetRequest(endpoint, apptoken string) *GetRequest {
 func (r *GetRequest) Get() (*http.Response, error) {
 	//If offset is used we must specify an order
 	if r.Query.Offset > 0 && len(r.Query.Order) == 0 {
-		return nil, fmt.Errorf("Cannot use an offset without setting the order")
+		return nil, errors.New("Cannot use an offset without setting the order")
 	}
 	return get(r, r.URLValues().Encode())
 }
@@ -99,7 +100,7 @@ func (r *GetRequest) Count() (uint, error) {
 		return 0, err
 	}
 	if len(count) == 0 {
-		return 0, fmt.Errorf("Empty count response")
+		return 0, errors.New("Empty count response")
 	}
 	icount, err := strconv.Atoi(count[0].Count)
 	if err != nil {
@@ -177,7 +178,7 @@ func (r *GetRequest) Modified() (time.Time, error) {
 		lms = resp.Header.Get("Last-Modified")
 	}
 	if lms == "" {
-		return time.Time{}, fmt.Errorf("Cannot get last modified date, field not present in HTTP header")
+		return time.Time{}, errors.New("Cannot get last modified date, field not present in HTTP header")
 	}
 
 	return time.Parse(time.RFC1123, lms)
@@ -278,7 +279,7 @@ type OffsetGetRequest struct {
 }
 
 //ErrDone is returned by OffsetGetRequest.Next when done
-var ErrDone = fmt.Errorf("Done")
+var ErrDone = errors.New("Done")
 
 //Next gets the next number of records
 func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
@@ -288,7 +289,7 @@ func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 		return nil, ErrDone
 	}
 	if len(o.gr.Query.Order) == 0 { //If offset is used we must specify an order
-		return nil, fmt.Errorf("Cannot use an offset without setting the order")
+		return nil, errors.New("Cannot use an offset without setting the order")
 	}
 	if o.offset+number > o.count {
 		number = o.count - o.offset
@@ -343,11 +344,11 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 	}
 
 	if resp.StatusCode >= 400 {
-		errormessage, err := ioutil.ReadAll(resp.Body)
+		errMsg, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("SODA error %d:\nURL: GET %s\nResponse: %s", resp.StatusCode, req.URL.String(), errormessage)
+		return nil, fmt.Errorf("SODA error %d:\nURL: GET %s\nResponse: %s", resp.StatusCode, req.URL.String(), errMsg)
 	}
 
 	return resp, nil
