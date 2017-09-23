@@ -2,15 +2,15 @@ language: go
 
 go:
   - tip
+  - 1.9
   - 1.8
   - 1.7
-  
 os:
   - linux
   - osx
 
 script:
-  - go test -v -coverprofile=coverage.txt -covermode=atomic
+  - go test -v -coverprofile=coverage.txt -covermode=atomic -race
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
