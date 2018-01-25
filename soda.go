@@ -215,13 +215,20 @@ type SoSQL struct {
 
 }
 
+type Direction bool
+
+const (
+	DirAsc  Direction = false
+	DirDesc Direction = true
+)
+
 //AddOrder can be called for each field you want to sort the result on.
 //If parameter descending is true, the column will be sorted descending, or ascending if false.
-func (sq *SoSQL) AddOrder(column string, descending bool) {
+func (sq *SoSQL) AddOrder(column string, dir Direction) {
 	sq.Order = append(sq.Order, struct {
 		Column string
 		Desc   bool
-	}{column, descending})
+	}{column, bool(dir)})
 }
 
 //ClearOrder removes all order fields
