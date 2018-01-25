@@ -4,6 +4,7 @@ package soda
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,7 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"errors"
 )
 
 //GetRequest is a wrapper/container for SODA requests.
