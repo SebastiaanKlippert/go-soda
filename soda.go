@@ -214,10 +214,14 @@ type SoSQL struct {
 
 }
 
+// Direction is used to set the sort direction to ascending or descending
 type Direction bool
 
 const (
-	DirAsc  Direction = false
+	// DirAsc is used to set ascending sort order
+	DirAsc Direction = false
+
+	// DirDesc is used to set descending sort order
 	DirDesc Direction = true
 )
 
