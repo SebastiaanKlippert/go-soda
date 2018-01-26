@@ -40,7 +40,7 @@ func TestGetRequestSerialize(t *testing.T) {
 	gr.Query.Limit = 10
 	gr.Query.Offset = 20
 	gr.Query.AddOrder("category", DirDesc)
-	gr.Query.AddOrder("farm_name", DirAsc)
+	gr.Query.AddOrder("farm_name", false)
 
 	want = "%24limit=10&%24offset=20&%24order=category+DESC%2Cfarm_name+ASC&%24select=farm_name%2Ccategory%2Citem%2Cwebsite&%24where=item+like+%27%25ADISH%25%27"
 	if gr.URLValues().Encode() != want {
