@@ -1,4 +1,4 @@
-//Package soda provides HTTP GET tools for SODA (Socrata Open Data API) webservices, see http://dev.socrata.com/
+// Package soda provides HTTP GET tools for SODA (Socrata Open Data API) webservices, see http://dev.socrata.com/
 package soda
 
 import (
@@ -16,9 +16,9 @@ import (
 	"time"
 )
 
-//GetRequest is a wrapper/container for SODA requests.
-//This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
-//Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
+// GetRequest is a wrapper/container for SODA requests.
+// This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
+// Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
 type GetRequest struct {
 	apptoken   string
 	endpoint   string //endpoint without format (not .json etc at the end)
@@ -29,8 +29,8 @@ type GetRequest struct {
 	HTTPClient *http.Client //For clients who need a custom HTTP client
 }
 
-//NewGetRequest creates a new GET request, the endpoint must be specified without the format.
-//For example https://data.ct.gov/resource/hma6-9xbg
+// NewGetRequest creates a new GET request, the endpoint must be specified without the format.
+// For example https://data.ct.gov/resource/hma6-9xbg
 func NewGetRequest(endpoint, apptoken string) *GetRequest {
 	return &GetRequest{
 		apptoken: apptoken,
@@ -40,16 +40,16 @@ func NewGetRequest(endpoint, apptoken string) *GetRequest {
 	}
 }
 
-//Get executes the HTTP GET request
+// Get executes the HTTP GET request
 func (r *GetRequest) Get() (*http.Response, error) {
 	//If offset is used we must specify an order
 	if r.Query.Offset > 0 && len(r.Query.Order) == 0 {
-		return nil, errors.New("Cannot use an offset without setting the order")
+		return nil, errors.New("cannot use an offset without setting the order")
 	}
 	return get(r, r.URLValues().Encode())
 }
 
-//GetEndpoint returns the complete SODA URL with format
+// GetEndpoint returns the complete SODA URL with format
 func (r *GetRequest) GetEndpoint() string {
 	if r.Format == "" {
 		r.Format = "json"
@@ -57,7 +57,7 @@ func (r *GetRequest) GetEndpoint() string {
 	return fmt.Sprintf("%s.%s", r.endpoint, r.Format)
 }
 
-//URLValues returns the url.Values for the GetRequest
+// URLValues returns the url.Values for the GetRequest
 func (r *GetRequest) URLValues() url.Values {
 	uv := make(url.Values)
 	for key, val := range r.Filters.URLValues() {
@@ -69,8 +69,8 @@ func (r *GetRequest) URLValues() url.Values {
 	return uv
 }
 
-//Count gets the total number of records in the dataset
-//by executing a SODA request
+// Count gets the total number of records in the dataset
+// by executing a SODA request
 func (r *GetRequest) Count() (uint, error) {
 
 	oldformat := r.Format
@@ -92,15 +92,15 @@ func (r *GetRequest) Count() (uint, error) {
 	}
 	defer resp.Body.Close()
 
-	count := []struct {
+	count := make([]struct {
 		Count string
-	}{}
+	}, 0)
 	err = json.NewDecoder(resp.Body).Decode(&count)
 	if err != nil {
 		return 0, err
 	}
 	if len(count) == 0 {
-		return 0, errors.New("Empty count response")
+		return 0, errors.New("empty count response")
 	}
 	icount, err := strconv.Atoi(count[0].Count)
 	if err != nil {
@@ -109,8 +109,8 @@ func (r *GetRequest) Count() (uint, error) {
 	return uint(icount), nil
 }
 
-//Fields returns all the fields present in the dataset (ignores select fields).
-//Spaces in fieldnames are replaced by underscores.
+// Fields returns all the fields present in the dataset (ignores select fields).
+// Spaces in fieldnames are replaced by underscores.
 func (r *GetRequest) Fields() ([]string, error) {
 
 	oldformat := r.Format
@@ -124,8 +124,6 @@ func (r *GetRequest) Fields() ([]string, error) {
 		r.Query.Limit = oldlimit
 	}()
 
-	fields := []string{}
-
 	r.Format = "csv"
 	r.Query.Select = []string{}
 	r.Query.Limit = 0
@@ -133,22 +131,23 @@ func (r *GetRequest) Fields() ([]string, error) {
 
 	resp, err := r.Get()
 	if err != nil {
-		return fields, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	csvreader := csv.NewReader(resp.Body)
 	record, err := csvreader.Read()
 	if err != nil && err != io.EOF {
-		return fields, err
+		return nil, err
 	}
-	for _, field := range record {
-		fields = append(fields, strings.Replace(field, " ", "_", -1))
+	fields := make([]string, len(record))
+	for i := range record {
+		fields[i] = strings.Replace(record[i], " ", "_", -1)
 	}
 	return fields, nil
 }
 
-//Modified returns when the dataset was last updated
+// Modified returns when the dataset was last updated
 func (r *GetRequest) Modified() (time.Time, error) {
 
 	oldformat := r.Format
@@ -178,16 +177,16 @@ func (r *GetRequest) Modified() (time.Time, error) {
 		lms = resp.Header.Get("Last-Modified")
 	}
 	if lms == "" {
-		return time.Time{}, errors.New("Cannot get last modified date, field not present in HTTP header")
+		return time.Time{}, errors.New("cannot get last modified date, field not present in HTTP header")
 	}
 
 	return time.Parse(time.RFC1123, lms)
 }
 
-//SimpleFilters is the easiest way to filter columns for equality.
-//Add the column to filter on a map key and the filter value as map value.
-//If you include multiple filters, the filters will be combined using a boolean AND.
-//See http://dev.socrata.com/docs/filtering.html
+// SimpleFilters is the easiest way to filter columns for equality.
+// Add the column to filter on a map key and the filter value as map value.
+// If you include multiple filters, the filters will be combined using a boolean AND.
+// See http://dev.socrata.com/docs/filtering.html
 type SimpleFilters map[string]string
 
 //URLValues returns the url.Values for the SimpleFilters
@@ -199,8 +198,8 @@ func (sf SimpleFilters) URLValues() url.Values {
 	return uv
 }
 
-//SoSQL implements the Socrata Query Language and is used to build more complex queries.
-//See http://dev.socrata.com/docs/queries.html
+// SoSQL implements the Socrata Query Language and is used to build more complex queries.
+// See http://dev.socrata.com/docs/queries.html
 type SoSQL struct {
 	Select []string //The set of columns to be returned. Default: All columns, equivalent to $select=*
 	Where  string   //Filters the rows to be returned. Default: No filter, and returning a max of $limit values
@@ -222,8 +221,8 @@ const (
 	DirDesc Direction = true
 )
 
-//AddOrder can be called for each field you want to sort the result on.
-//If parameter descending is true, the column will be sorted descending, or ascending if false.
+// AddOrder can be called for each field you want to sort the result on.
+// If parameter descending is true, the column will be sorted descending, or ascending if false.
 func (sq *SoSQL) AddOrder(column string, dir Direction) {
 	sq.Order = append(sq.Order, struct {
 		Column string
@@ -231,7 +230,7 @@ func (sq *SoSQL) AddOrder(column string, dir Direction) {
 	}{column, bool(dir)})
 }
 
-//ClearOrder removes all order fields
+// ClearOrder removes all order fields
 func (sq *SoSQL) ClearOrder() {
 	sq.Order = []struct {
 		Column string
@@ -239,7 +238,7 @@ func (sq *SoSQL) ClearOrder() {
 	}{}
 }
 
-//URLValues returns the url.Values for the SoSQL query
+// URLValues returns the url.Values for the SoSQL query
 func (sq *SoSQL) URLValues() url.Values {
 	uv := make(url.Values)
 	if len(sq.Select) > 0 {
@@ -249,7 +248,7 @@ func (sq *SoSQL) URLValues() url.Values {
 		uv.Add("$where", sq.Where)
 	}
 	if len(sq.Order) > 0 {
-		order := []string{}
+		order := make([]string, 0)
 		for _, o := range sq.Order {
 			if o.Desc {
 				order = append(order, o.Column+" DESC")
@@ -274,9 +273,9 @@ func (sq *SoSQL) URLValues() url.Values {
 	return uv
 }
 
-//OffsetGetRequest is a request getter that gets all the records using the filters and limits from gr and
-//is safe to use by multiple goroutines, use Next(number) to get the next number of records.
-//A sync.WaitGroup is embedded for easy concurrency.
+// OffsetGetRequest is a request getter that gets all the records using the filters and limits from gr and
+// is safe to use by multiple goroutines, use Next(number) to get the next number of records.
+// A sync.WaitGroup is embedded for easy concurrency.
 type OffsetGetRequest struct {
 	gr     *GetRequest
 	m      sync.Mutex
@@ -285,10 +284,10 @@ type OffsetGetRequest struct {
 	sync.WaitGroup
 }
 
-//ErrDone is returned by OffsetGetRequest.Next when done
+// ErrDone is returned by OffsetGetRequest.Next when done
 var ErrDone = errors.New("Done")
 
-//Next gets the next number of records
+// Next gets the next number of records
 func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 	o.m.Lock() //lock to protect offset
 	if o.IsDone() {
@@ -296,7 +295,7 @@ func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 		return nil, ErrDone
 	}
 	if len(o.gr.Query.Order) == 0 { //If offset is used we must specify an order
-		return nil, errors.New("Cannot use an offset without setting the order")
+		return nil, errors.New("cannot use an offset without setting the order")
 	}
 	if o.offset+number > o.count {
 		number = o.count - o.offset
@@ -309,18 +308,18 @@ func (o *OffsetGetRequest) Next(number uint) (*http.Response, error) {
 	return get(o.gr, rawquery)
 }
 
-//Count returns the number of records from memory
+// Count returns the number of records from memory
 func (o *OffsetGetRequest) Count() uint {
 	return o.count
 }
 
-//IsDone returns if we have gotten all records
+// IsDone returns if we have gotten all records
 func (o *OffsetGetRequest) IsDone() bool {
 	return o.offset >= o.count
 }
 
-//NewOffsetGetRequest creates a new OffsetGetRequest from gr
-//and does a count request to determine the number of records to get
+// NewOffsetGetRequest creates a new OffsetGetRequest from gr
+// and does a count request to determine the number of records to get
 func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 	count, err := gr.Count()
 	if err != nil {
@@ -329,7 +328,7 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 	return &OffsetGetRequest{gr: gr, offset: 0, count: count}, nil
 }
 
-//get is the function that executes the HTTP request
+// get is the function that executes the HTTP request
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
 
 	client := http.DefaultClient
@@ -344,7 +343,7 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 	req.URL.RawQuery = rawquery
 	req.Header.Set("X-App-Token", r.apptoken)
 
-	//Execute
+	// Execute
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
