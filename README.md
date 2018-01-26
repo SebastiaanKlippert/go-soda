@@ -80,8 +80,8 @@ func QuerySample() {
 	sodareq.Query.Where = "lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 
 	  'Cucumbers') OR lower(item) like '%flower%')"
 	sodareq.Query.Limit = 1000
-	sodareq.Query.AddOrder("farm_name", false)
-	sodareq.Query.AddOrder("category", true)
+	sodareq.Query.AddOrder("farm_name", DirAsc)
+	sodareq.Query.AddOrder("category", DirDesc)
 
 	//count this result first
 	querycount, err := sodareq.Count()
@@ -164,7 +164,7 @@ func GetAllData() error {
 
 	gr := soda.NewGetRequest("https://data.ct.gov/resource/y6p2-px98", "")
 	gr.Format = "json"
-	gr.Query.AddOrder("zipcode", false)
+	gr.Query.AddOrder("zipcode", DirAsc)
 
 	ogr, err := soda.NewOffsetGetRequest(gr)
 	if err != nil {
