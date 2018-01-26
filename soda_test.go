@@ -39,8 +39,8 @@ func TestGetRequestSerialize(t *testing.T) {
 	gr.Query.Where = "item like '%ADISH%'"
 	gr.Query.Limit = 10
 	gr.Query.Offset = 20
-	gr.Query.AddOrder("category", true)
-	gr.Query.AddOrder("farm_name", false)
+	gr.Query.AddOrder("category", DirDesc)
+	gr.Query.AddOrder("farm_name", DirAsc)
 
 	want = "%24limit=10&%24offset=20&%24order=category+DESC%2Cfarm_name+ASC&%24select=farm_name%2Ccategory%2Citem%2Cwebsite&%24where=item+like+%27%25ADISH%25%27"
 	if gr.URLValues().Encode() != want {
@@ -100,8 +100,8 @@ func TestGetJSON(t *testing.T) {
 	gr.Format = "json"
 	gr.Query.Where = "item = 'Radishes'"
 	gr.Query.Limit = 1000
-	gr.Query.AddOrder("category", true)
-	gr.Query.AddOrder("farm_name", false)
+	gr.Query.AddOrder("category", DirDesc)
+	gr.Query.AddOrder("farm_name", DirAsc)
 
 	resp, err := gr.Get()
 	if err != nil {
@@ -254,7 +254,7 @@ func TestOffsetGetRequest(t *testing.T) {
 
 	gr := NewGetRequest(endpoint, apptoken)
 	gr.Format = "json"
-	gr.Query.AddOrder("farm_name", false)
+	gr.Query.AddOrder("farm_name", DirAsc)
 
 	ogr, err := NewOffsetGetRequest(gr)
 	if err != nil {
