@@ -77,8 +77,8 @@ func QuerySample() {
 	//get some JSON data using a complex query
 	sodareq.Format = "json"
 	sodareq.Query.Select = []string{"farm_name", "category", "item", "zipcode"}
-	sodareq.Query.Where = "lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 
-	  'Cucumbers') OR lower(item) like '%flower%')"
+	sodareq.Query.Where = `lower(farm_name) like '%sun%farm%' AND (item in('Radishes', 
+	  'Cucumbers') OR lower(item) like '%flower%')`
 	sodareq.Query.Limit = 1000
 	sodareq.Query.AddOrder("farm_name", soda.DirAsc)
 	sodareq.Query.AddOrder("category", soda.DirDesc)
