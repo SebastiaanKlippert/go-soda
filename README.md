@@ -8,7 +8,7 @@
 
 Socrata Open Data API (SODA) GET client for Golang
 
-![SODA Logo](http://1j3rac4ejwve1p3y0x1gprgk.wpengine.netdna-cdn.com/wp-content/uploads/2010/11/soda1.png)
+![SODAGopherLove](https://sklippert.s3-eu-central-1.amazonaws.com/public/opengopher.png)
 
 For SODA docs see http://dev.socrata.com
 
