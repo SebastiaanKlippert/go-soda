@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+type HTTPRequester interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // GetRequest is a wrapper/container for SODA requests.
 // This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
 // Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
@@ -26,7 +30,7 @@ type GetRequest struct {
 	Filters    SimpleFilters
 	Query      SoSQL
 	Metadata   metadata
-	HTTPClient *http.Client //For clients who need a custom HTTP client
+	HTTPClient HTTPRequester //For clients who need a custom HTTP client
 }
 
 // NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -335,7 +339,7 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 // get is the function that executes the HTTP request
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
 
-	client := http.DefaultClient
+	var client HTTPRequester = http.DefaultClient
 	if r.HTTPClient != nil {
 		client = r.HTTPClient
 	}
