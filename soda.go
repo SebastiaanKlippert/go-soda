@@ -2,6 +2,7 @@
 package soda
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -31,6 +32,7 @@ type GetRequest struct {
 	Query      SoSQL
 	Metadata   metadata
 	HTTPClient HTTPRequester //For clients who need a custom HTTP client
+	context    context.Context
 }
 
 // NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -186,6 +188,13 @@ func (r *GetRequest) Modified() (time.Time, error) {
 
 	return time.Parse(time.RFC1123, lms)
 }
+
+// WithContext sets the context on the http.Request
+func (r *GetRequest) WithContext(ctx context.Context) *GetRequest {
+	r.context = ctx
+	return r
+}
+
 
 // SimpleFilters is the easiest way to filter columns for equality.
 // Add the column to filter on a map key and the filter value as map value.
@@ -347,6 +356,9 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", r.GetEndpoint(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if r.context != nil {
+		req = req.WithContext(r.context)
 	}
 	req.URL.RawQuery = rawquery
 	req.Header.Set("X-App-Token", r.apptoken)
