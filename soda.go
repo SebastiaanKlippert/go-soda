@@ -2,7 +2,6 @@
 package soda
 
 import (
-	"context"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -17,10 +16,6 @@ import (
 	"time"
 )
 
-type HTTPRequester interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
 // GetRequest is a wrapper/container for SODA requests.
 // This is NOT safe for use by multiple goroutines as Format, Filters and Query will be overwritten.
 // Create a new GetRequest in each goroutine you use or use an OffsetGetRequest
@@ -31,8 +26,7 @@ type GetRequest struct {
 	Filters    SimpleFilters
 	Query      SoSQL
 	Metadata   metadata
-	HTTPClient HTTPRequester //For clients who need a custom HTTP client
-	context    context.Context
+	HTTPClient *http.Client //For clients who need a custom HTTP client
 }
 
 // NewGetRequest creates a new GET request, the endpoint must be specified without the format.
@@ -189,13 +183,6 @@ func (r *GetRequest) Modified() (time.Time, error) {
 	return time.Parse(time.RFC1123, lms)
 }
 
-// WithContext sets the context on the http.Request
-func (r *GetRequest) WithContext(ctx context.Context) *GetRequest {
-	r.context = ctx
-	return r
-}
-
-
 // SimpleFilters is the easiest way to filter columns for equality.
 // Add the column to filter on a map key and the filter value as map value.
 // If you include multiple filters, the filters will be combined using a boolean AND.
@@ -348,7 +335,7 @@ func NewOffsetGetRequest(gr *GetRequest) (*OffsetGetRequest, error) {
 // get is the function that executes the HTTP request
 func get(r *GetRequest, rawquery string) (*http.Response, error) {
 
-	var client HTTPRequester = http.DefaultClient
+	client := http.DefaultClient
 	if r.HTTPClient != nil {
 		client = r.HTTPClient
 	}
@@ -356,9 +343,6 @@ func get(r *GetRequest, rawquery string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", r.GetEndpoint(), nil)
 	if err != nil {
 		return nil, err
-	}
-	if r.context != nil {
-		req = req.WithContext(r.context)
 	}
 	req.URL.RawQuery = rawquery
 	req.Header.Set("X-App-Token", r.apptoken)
