@@ -12,7 +12,7 @@ import (
 
 const (
 	apptoken = ""
-	endpoint = "https://data.ct.gov/resource/y6p2-px98"
+	endpoint = "https://data.ct.gov/resource/hma6-9xbg"
 )
 
 func TestGetRequestSerialize(t *testing.T) {
@@ -199,7 +199,7 @@ func TestGetMetadata(t *testing.T) {
 		t.Errorf("Want ID %s, have %s", m.identifier, md.ID)
 	}
 
-	w := "2015-01-23 21:01:23 +0000 UTC"
+	w := "2014-09-04 15:01:44 +0000 UTC"
 	if md.CreatedAt.Time().UTC().String() != w {
 		t.Errorf("Want CreatedAt %s, have %s", w, md.CreatedAt.Time().UTC().String())
 	}
@@ -224,11 +224,11 @@ func TestGetMetadataColumns(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(cols) != 16 {
-		t.Errorf("Want %d columns, have %d", 16, len(cols))
+	if len(cols) != 15 {
+		t.Errorf("Want %d columns, have %d", 15, len(cols))
 	}
 
-	want := []string{"Farm Name", "Category", "Item", "Farmer ID", "Location 1 (state)"} //not complete, but good enough
+	want := []string{"Farm Name", "Category", "Item", "Farmer ID", "Location 1"} //not complete, but good enough
 	for _, w := range want {
 		found := false
 		for _, col := range cols {
